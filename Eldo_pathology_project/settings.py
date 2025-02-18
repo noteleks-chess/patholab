@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 import dotenv
+import dj_database_url
 from pathlib import Path
 
 dotenv.load_dotenv(os.path.join(os.path.dirname(__file__), '.env')) # load environment variables from .env
@@ -85,15 +86,8 @@ WSGI_APPLICATION = 'Eldo_pathology_project.wsgi:application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-     'default': {
-         'ENGINE': 'django.db.backends.postgresql',
-         'NAME': os.environ.get('DATABASE_NAME'),
-         'USER': os.environ.get('DATABASE_USER'),
-         'PASSWORD': os.environ.get('DATABASE_PASSWORD'),
-         'HOST': os.environ.get('DATABASE_HOST'),
-         'PORT': os.environ.get('DATABASE_PORT'),
-     }
- }
+    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+}
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
