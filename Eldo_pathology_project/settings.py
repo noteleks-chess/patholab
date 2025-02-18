@@ -64,7 +64,7 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             BASE_DIR / 'templates',
-            BASE_DIR / 'patients/templates',   # Add this line!
+           # BASE_DIR / 'patients/templates',   # Add this line!
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -141,7 +141,7 @@ STATICFILES_DIRS = [
 ]
 
 #Only if you are in development
-STATIC_ROOT = BASE_DIR / "static" #Path where collectstatic will put all the static files
+#STATIC_ROOT = BASE_DIR / "static" #Path where collectstatic will put all the static files
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

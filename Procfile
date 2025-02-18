@@ -1,1 +1,1 @@
-web: gunicorn Eldo_pathology_project.wsgi:application
+web: sh run.sh
