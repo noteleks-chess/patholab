@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 import os
 import dotenv
 from pathlib import Path
-import urllib.parse
 
 dotenv.load_dotenv(os.path.join(os.path.dirname(__file__), '.env')) # load environment variables from .env
 
@@ -84,9 +83,6 @@ WSGI_APPLICATION = 'Eldo_pathology_project.wsgi:application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-
-database_url = os.environ.get('DATABASE_URL')
-parsed_url = urllib.parse.urlparse(database_url)
 
 DATABASES = {
      'default': {
