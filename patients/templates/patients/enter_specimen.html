@@ -1,0 +1,45 @@
+<form method="post">
+    {% csrf_token %}
+
+    {# ... other form fields (patient, specimen_type, etc.) ... #}
+
+    <div class="form-group">
+        {{ form.collection_site.label_tag }}
+        {{ form.collection_site }}
+        {% if form.collection_site.errors %}
+            <div class="invalid-feedback">  {# For Bootstrap styling #}
+                {{ form.collection_site.errors }}
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="form-group" id="other-site-field" {% if form.collection_site.value != 'Other' %}style="display: none;"{% endif %}>
+        {{ form.other_collection_site.label_tag }}
+        {{ form.other_collection_site }}
+        {% if form.other_collection_site.errors %}
+            <div class="invalid-feedback">  {# For Bootstrap styling #}
+                {{ form.other_collection_site.errors }}
+            </div>
+        {% endif %}
+    </div>
+
+    {# ... other form fields (quantity, condition, etc.) ... #}
+
+    <button type="submit">Submit</button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const collectionSiteSelect = document.getElementById('id_collection_site');
+        const otherSiteField = document.getElementById('other-site-field');
+
+        if (collectionSiteSelect) { // Check if element exists
+            collectionSiteSelect.addEventListener('change', function() {
+                otherSiteField.style.display = this.value === 'Other' ? 'block' : 'none';
+            });
+
+            // Initial visibility (on page load) - Improved
+            otherSiteField.style.display = collectionSiteSelect.value === 'Other' ? 'block' : 'none';
+        }
+    });
+</script>

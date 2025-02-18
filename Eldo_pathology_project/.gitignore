@@ -1,0 +1,9 @@
+__pycache__/
+*.pyc
+.DS_Store
+venv/       # Or your virtual environment directory
+static/     # Or wherever your static files are stored
+media/      # Or wherever your media files are stored
+*.sqlite3   # If you're using SQLite (don't commit this in production)
+.env        # Or wherever your environment variables are stored
+settings.py # Only if you are not using environment variables for sensitive data

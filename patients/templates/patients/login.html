@@ -1,0 +1,51 @@
+{% extends 'base.html' %}  <!— Inherit from base.html -->
+{% load static %}
+
+{% block title %}Login{% endblock %}  <!— Set title -->
+
+{% block content %}  <!— Start content block -->
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-body p-4">
+                    <div class="text-center mb-3">
+                        <img src="{% static 'images/logo.png' %}" alt="Lab Logo" class="img-fluid" width="200">  <!— Adjust width as needed -->
+                    </div>
+                    <h2 class="text-center mb-4">Login</h2>
+                    <form method="post" action="/login/">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="username">Username/Email</label>
+                            <input type="text" class="form-control" name="username" id="username" required autofocus>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" class="form-control" name="password" id="password" required>
+                        </div>
+                        <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" name="remember" id="remember">
+                            <label class="form-check-label" for="remember">Remember Me</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Login</button>
+                        <a href="{% url 'password_reset' %}">Forgot Your Password?</a>
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger mt-3">
+                            {% for field, errors in form.errors.items %}
+                                {% for error in errors %}
+                                    {{ error }}<br>
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}  <!— End content block -->

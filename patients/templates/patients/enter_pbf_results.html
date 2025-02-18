@@ -1,0 +1,7 @@
+<h1>Enter PBF Results for Test Order {{ test_order.id }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save PBF Results</button>
+</form>

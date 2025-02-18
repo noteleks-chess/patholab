@@ -1,0 +1,16 @@
+<h1>Test Order Details</h1>
+<h2>Test Order Details</h2>
+<p>...</p>  </a>
+
+<a href="{% url 'patients:enter_results' test_order.id test_order.test_name %}">Enter Results</a>
+
+<p>...</p>  </a>
+<p><strong>Specimen:</strong> {{ test_order.specimen.specimen_type }} (ID: {{ test_order.specimen.id }}) for {{ test_order.specimen.patient.first_name }} {{ test_order.specimen.patient.last_name }}</p>
+<p><strong>Test Type:</strong> {{ test_order.test_name }}</p>
+<p><strong>Ordering Doctor:</strong> {{ test_order.ordering_doctor.first_name }} {{ test_order.ordering_doctor.last_name }}</p>
+<p><strong>Order Date and Time:</strong> {{ test_order.order_date_time }}</p>
+
+
+<a href="/patients/specimen/{{ test_order.specimen.id }}/test_order/">Create Another Test Order for this Specimen</a> <br>
+<a href="/patients/specimen/{{ test_order.specimen.id }}/">Back to Specimen Details</a> <br>
+<a href="/patients/">Back to Patient List</a>

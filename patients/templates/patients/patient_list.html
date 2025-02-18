@@ -1,0 +1,16 @@
+<h1>Patient List</h1>
+
+{% if patients %}
+    <ul>
+        {% for patient in patients %}
+            <li>
+                <a href="{% url 'patients:patient_detail' patient.id %}">  </a>
+                {{ patient.first_name }} {{ patient.last_name }} (MRN: {{ patient.mrn }})
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No patients recorded yet.</p>
+{% endif %}
+
+<a href="{% url 'patients:register_patient' %}">Register New Patient</a>

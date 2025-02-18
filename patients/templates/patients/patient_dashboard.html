@@ -1,0 +1,42 @@
+<h1>Patient Dashboard</h1>
+
+<h2>Patient Details</h2>
+<p>Name: {{ patient.first_name }} {{ patient.last_name }}</p>
+<p>MRN: {{ patient.mrn }}</p>
+<p>Date of Birth: {{ patient.dob }}</p>
+<p>...</p>
+
+<h2>Specimens</h2>
+{% if specimens %}
+    <ul>
+        {% for specimen in specimens %}
+            <li><a href="{% url 'patients:create_test_order' specimen.id %}">Specimen {{ specimen.id }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No specimens recorded yet.</p>
+{% endif %}
+
+<a href="{% url 'patients:enter_specimen' patient.id %}">Register New Specimen</a>  </a>
+
+<h2>Test Orders</h2>
+{% if test_orders %}
+    <ul>
+        {% for test_order in test_orders %}
+            <li><a href="{% url 'patients:test_order_detail' test_order.id %}">Test Order {{ test_order.id }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No test orders recorded yet.</p>
+{% endif %}
+
+<h2>Reports</h2>
+{% if reports %}
+    <ul>
+        {% for report in reports %}
+            <li><a href="{% url 'patients:generate_report' report.test_order.id %}">Report for Test Order {{ report.test_order.id }}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No reports recorded yet.</p>
+{% endif %}

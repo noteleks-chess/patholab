@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Register Patient{% endblock %}
+
+{% block content %}
+
+<h1>Register Patient</h1>
+
+<div class="card shadow">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <div class="alert alert-danger">
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                                <li>{{ field|capfirst }}: {{ error }}</li>
+                            {% endfor %}
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
+            {{ form.as_p }}
+
+            <button type="submit" class="btn btn-primary">Register</button>
+
+            {% if messages %}  {# Display success messages #}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+        </form>
+    </div>
+</div>
+
+{% endblock %}

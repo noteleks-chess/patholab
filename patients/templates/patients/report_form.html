@@ -1,0 +1,15 @@
+<h1>Doctor's Comments</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Comments</button>
+</form>
+
+<br><br>
+
+{% if report %}
+    <a href="{% url 'patients:generate_report' report.id %}" target="_blank">Generate PDF Report</a>
+{% else %}
+    <p>Please save the comments first to generate a report.</p>
+{% endif %}

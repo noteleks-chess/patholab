@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Frontend Dashboard</h1>
+
+    {% if message %}
+        <p>{{ message }}</p>
+    {% endif %}
+
+    {% if is_superuser %}  {# Use the variable from the view #}
+        <h2>Superuser Actions</h2>
+        <p>This section is for superusers.</p>
+        <a href="{% url 'admin:index' %}">Go to Admin</a>
+
+    {% elif is_admin %}  {# Use the variable from the view #}
+        <h2>Admin Actions</h2>
+        <p>This section is for admin users.</p>
+
+        {% if can_add_patient %}  {# Use permission variable #}
+            <a href="{% url 'patients:register_patient' %}">Register Patient</a><br>
+        {% endif %}
+
+        {% if can_view_patient %}  {# Use permission variable #}
+            <a href="{% url 'patients:patient_list' %}">Patient List</a><br>
+            {% if patients %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>MRN</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                            <tr>
+                                <td>{{ patient.mrn }}</td>
+                                <td>{{ patient.first_name }} {{ patient.last_name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        {% endif %}
+
+        {% if can_add_specimen %}  {# Use permission variable #}
+            <a href="{% url 'patients:enter_specimen' 1 %}">Enter Specimen</a><br>  {# Replace 1 with a patient ID #}
+        {% endif %}
+        {# ... (Other admin-related links, each wrapped in an if condition) #}
+
+    {% elif is_doctor %}  {# Use the variable from the view #}
+        <h2>Doctor Actions</h2>
+        <p>This section is for Doctors.</p>
+
+        {% if can_view_patient %}  {# Use permission variable #}
+            <a href="{% url 'patients:patient_list' %}">Patient List</a><br>
+            {% if patients %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>MRN</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                            <tr>
+                                <td>{{ patient.mrn }}</td>
+                                <td>{{ patient.first_name }} {{ patient.last_name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        {% endif %}
+
+        {% if can_add_specimen %}  {# Use permission variable #}
+            <a href="{% url 'patients:enter_specimen' 1 %}">Enter Specimen</a><br>  {# Replace 1 with a patient ID #}
+        {% endif %}
+        {# ... (Other doctor-related links, each wrapped in an if condition) #}
+
+    {% elif is_patient %}  {# Use the variable from the view #}
+        <h2>Patient Actions</h2>
+        <p>This section is for regular users (patients).</p>
+        {% if can_view_report %}  {# Use permission variable #}
+            {% if reports %}
+                <ul>
+                    {% for report in reports %}
+                        <li><a href="{% url 'patients:report_detail' report.id %}">Report {{ report.id }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reports available yet.</p>
+            {% endif %}
+        {% endif %}
+
+    {% elif is_receptionist %}  {# Use the variable from the view #}
+        <h2>Receptionist Actions</h2>
+        <p>This section is for Receptionists.</p>
+        {% if can_add_patient %}  {# Use permission variable #}
+            <a href="{% url 'patients:register_patient' %}">Register Patient</a><br>
+        {% endif %}
+        {% if can_view_patient %}  {# Use permission variable #}
+            <a href="{% url 'patients:patient_list' %}">Patient List</a><br>
+            {% if patients %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>MRN</th>
+                            <th>Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                            <tr>
+                                <td>{{ patient.mrn }}</td>
+                                <td>{{ patient.first_name }} {{ patient.last_name }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        {% endif %}
+        {% if can_add_specimen %}  {# Use permission variable #}
+            <a href="{% url 'patients:enter_specimen' 1 %}">Enter Specimen</a><br>  {# Replace 1 with a patient ID #}
+        {% endif %}
+        {# ... (Other receptionist-related links, each wrapped in an if condition) #}
+
+    {% else %}
+        <p>You do not have permission to access this dashboard.</p>
+    {% endif %}
+
+{% endblock %}

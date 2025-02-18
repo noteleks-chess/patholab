@@ -1,0 +1,10 @@
+<h1>Enter Histology Results for Test Order {{ test_order.id }}</h1>
+<a href="{% url 'patients:test_order_detail' test_order.id %}">Back to Test Order Details</a>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Histology Results</button>
+</form>
+
+<a href="/patients/test_order/{{ test_order.id }}/">Back to Test Order Details</a>

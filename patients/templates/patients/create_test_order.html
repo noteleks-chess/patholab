@@ -1,0 +1,9 @@
+<h1>Create Test Order for Specimen {{ specimen.specimen_type }} (ID: {{ specimen.id }})</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create Test Order</button>
+</form>
+
+<a href="{% url 'patients:specimen_detail' specimen.id %}">Back to Specimen Details</a>

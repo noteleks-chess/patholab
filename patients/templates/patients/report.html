@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lab Report Data</title>
+</head>
+<body>
+    <p id="patient_mrn">{{ patient.mrn }}</p>
+    <p id="patient_name">{{ patient.first_name }} {{ patient.last_name }}</p>
+    <p id="patient_dob">{{ patient.dob }}</p>
+    <p id="test_name">{{ test_order.test_name }}</p>
+    <p id="doctor_comments">{{ report.comments_conclusion }}</p>
+    <p id="doctor_signature">{{ report.doctor_signature }}</p>
+    <p id="nature_of_specimen">{{ test_result.nature_of_specimen }}</p>
+    <p id="clinical_history">{{ test_result.clinical_history }}</p>
+    <p id="macroscopy_description">{{ test_result.macroscopy_description }}</p>
+    <p id="microscopy_description">{{ test_result.microscopy_description }}</p>
+
+    {% if test_order.test_name == "Histology" %}
+        <p id="histology_parameter1">{{ test_result.histology_parameter1 }}</p>
+        <p id="histology_parameter2">{{ test_result.histology_parameter2 }}</p>
+        <p id="histology_parameter3">{{ test_result.histology_parameter3 }}</p>
+    {% elif test_order.test_name == "Cytology" %}
+        <p id="cytology_parameter1">{{ test_result.cytology_parameter1 }}</p>
+        <p id="cytology_parameter2">{{ test_result.cytology_parameter2 }}</p>
+        <p id="cytology_parameter3">{{ test_result.cytology_parameter3 }}</p>
+    {% elif test_order.test_name == "PBF" %}
+        <p id="pbf_parameter1">{{ test_result.pbf_parameter1 }}</p>
+        <p id="pbf_parameter2">{{ test_result.pbf_parameter2 }}</p>
+        <p id="pbf_parameter3">{{ test_result.pbf_parameter3 }}</p>
+    {% endif %}
+</body>
+</html>

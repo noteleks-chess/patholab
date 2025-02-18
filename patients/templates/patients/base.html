@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}My Site{% endblock %}</title>
+    </head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">  <!— Example navigation bar -->
+        <a class="navbar-brand" href="/">My Site</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}  <!— Show links only for logged-in users -->
+                    {% if user.has_perm('patients.view_patient') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'patients:patient_list' %}">Patient List</a>
+                        </li>
+                    {% endif %}
+
+                    {% if user.has_perm('patients.add_patient') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'patients:register_patient' %}">Register Patient</a>
+                        </li>
+                    {% endif %}
+
+                    {% if user.has_perm('patients.add_specimen') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'patients:enter_specimen' patient.id %}">Enter Specimen</a>
+                        </li>
+                    {% endif %}
+
+                    {% if user.has_perm('patients.add_testorder') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'patients:create_test_order' specimen.id %}">Create Test Order</a>
+                        </li>
+                    {% endif %}
+
+                    {% if user.has_perm('patients.add_testresult') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Enter Results</a>  <!— Add URL when you have separate views -->
+                        </li>
+                    {% endif %}
+
+                    {% if user.has_perm('patients.change_report') %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Generate Report</a> <!— Add URL when you have separate views -->
+                        </li>
+                    {% endif %}
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">  <!— Main content area -->
+        {% block content %}
+            <!— Content of specific templates will go here -->
+        {% endblock %}
+    </div>
+
+</body>
+</html>

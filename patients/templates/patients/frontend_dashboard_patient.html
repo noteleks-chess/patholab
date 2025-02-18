@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Patient Dashboard</h1>
+
+    {% if patient_error %}  <p style="color: red;">{{ patient_error }}</p>
+    {% else %}  <h2>My Reports</h2>
+        {% if can_view_report %}
+            {% if reports %}
+                <ul>
+                    {% for report in reports %}
+                        <li><a href="{% url 'patients:report_detail' report.id %}">Report {{ report.id }}</a></li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No reports available yet.</p>
+            {% endif %}
+        {% else %}
+            <p>You do not have permission to view reports.</p>
+        {% endif %}
+    {% endif %}
+
+    {% if not patient_error %}  {% if user.is_authenticated and not request.user.patient %} <a href="{% url 'patients:create_patient' %}">Create Patient Profile</a>
+       {% endif %}
+    {% endif %}
+
+{% endblock %}

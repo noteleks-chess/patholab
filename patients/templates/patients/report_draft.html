@@ -1,0 +1,35 @@
+<h1>Report Draft</h1>
+
+{% if report %}
+<p><strong>Patient Details:</strong></p>
+<p>MRN: {{ patient.mrn }}</p>
+<p>Name: {{ patient.first_name }} {{ patient.last_name }}</p>
+<p>DOB: {{ patient.dob }}</p>
+
+<p><strong>Specimen Details:</strong></p>
+<p>Type: {{ specimen.specimen_type }}</p>
+<p>Collection Date: {{ specimen.collection_date_time }}</p>
+
+<p><strong>Test Order Details:</strong></p>
+<p>Test Name: {{ test_order.test_name }}</p>
+<p>Order Date: {{ test_order.order_date_time }}</p>
+
+<p><strong>Test Result Details:</strong></p>
+{% if test_result %}
+    <p>Nature of Specimen: {{ test_result.nature_of_specimen }}</p>
+    {% else %}
+    <p>Test results are not available yet.</p>
+{% endif %}
+
+<p><strong>Report Comments:</strong></p>
+<p>{{ report.comments_conclusion }}</p>
+
+<form method="post" action="{% url 'patients:finalize_report' report.id %}">
+    {% csrf_token %}
+    <label for="signature">Doctor's Signature:</label><br>
+    <textarea name="signature" id="signature" rows="4" cols="50"></textarea><br><br>
+    <button type="submit">Generate Final Report</button>
+</form>
+{% else %}
+<p>Report not found.</p>
+{% endif %}

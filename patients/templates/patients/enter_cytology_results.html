@@ -1,0 +1,9 @@
+<h1>Enter Cytology Results for Test Order {{ test_order.id }}</h1>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Save Cytology Results</button>
+</form>
+
+<a href="/patients/test_order/{{ test_order.id }}/">Back to Test Order Details</a>

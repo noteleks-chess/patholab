@@ -1,0 +1,54 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('PathoLab site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('PathoLab') }}</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block extrastyle %}  {# Only ONE extrastyle block #}
+    <link rel="stylesheet" href="{% static 'admin/css/styles.css' %}">
+    <style>
+        .other-collection-site-field {
+            display: none;
+        }
+        #id_collection_site {
+            /* Add any needed styling */
+        }
+        #id_collection_site option[value="Other"] {
+            /* Add any needed styling */
+        }
+    </style>
+{% endblock %}
+
+{% block extrajs %}  {# Only ONE extrajs block #}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const collectionSiteSelect = document.querySelector('#id_collection_site');
+        const otherSiteField = document.querySelector('.other-collection-site-field');
+
+        if (collectionSiteSelect && otherSiteField) {
+            function toggleOtherSiteField() {
+                if (collectionSiteSelect.value === 'Other') {
+                    otherSiteField.style.display = 'block';
+                } else {
+                    otherSiteField.style.display = 'none';
+                }
+            }
+
+            collectionSiteSelect.addEventListener('change', toggleOtherSiteField);
+            toggleOtherSiteField(); // Set initial visibility
+        } else {
+            console.log("Collection site or other site field not found.");
+            console.log("Collection Site Select:", collectionSiteSelect);
+            console.log("Other Site Field:", otherSiteField);
+        }
+    });
+</script>
+{{ block.super }}
+{% endblock %}
+
+{# ... other blocks (if you have any) ... #}
