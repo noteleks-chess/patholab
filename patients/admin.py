@@ -5,6 +5,15 @@ from doctors.models import Doctor  # Import Doctor model
 from .views import generate_report  # Import your PDF generation function from views.py
 from django.db.models import JSONField  # Import JSONField
 from django import forms  # Import forms
+from .forms import (
+    PatientForm,
+    SpecimenEntryForm,
+    TestOrderForm,
+    HistologyResultForm,
+    CytologyResultForm,
+    PBFResultForm,
+    ReportForm,
+)  # Import your forms
 import zipfile
 from io import BytesIO
 
@@ -59,46 +68,16 @@ class PatientAdmin(admin.ModelAdmin):
     search_fields = ('mrn', 'first_name', 'last_name')
     list_filter = ('gender', 'dob')
     ordering = ('last_name', 'first_name')
+    form = PatientForm
 
 from django import forms
 from .models import Specimen  # Import your Specimen model
 
-class SpecimenAdminForm(forms.ModelForm):
 
-    class Meta:
-        model = Specimen
-        fields = '__all__'  # Include all fields from the model
-        # Or specify the fields explicitly if you prefer:
-        # fields = ['patient', 'specimen_type', 'collection_date_time', ...]
-
-    def clean(self):
-        cleaned_data = super().clean()
-        collection_site = cleaned_data.get('collection_site')
-        other_collection_site = cleaned_data.get('other_collection_site')
-
-        if collection_site == 'Other' and not other_collection_site:
-            raise forms.ValidationError("Please specify the other collection site.")
-        return cleaned_data
-
-def save(self, commit=True):
-    instance = super().save(commit=False)
-    collection_site = self.cleaned_data.get('collection_site')
-    other_collection_site = self.cleaned_data.get('other_collection_site')
-
-    if str(collection_site) == 'Other': # Corrected this line
-        instance.collection_site = None  # Set the ForeignKey to None
-        instance.other_collection_site = other_collection_site # Store the value in the new field
-    else:
-        instance.collection_site = collection_site # Assign the selected CollectionSite
-        instance.other_collection_site = None  # Clear the other_collection_site
-
-    if commit:
-        instance.save()
-    return instance
     
 @admin.register(Specimen)
 class SpecimenAdmin(admin.ModelAdmin):
-    form = SpecimenAdminForm  # Use your custom form
+    form = SpecimenEntryForm  # Use your custom form
     list_display = ('patient', 'specimen_type', 'collection_date_time', 'received_date_time', 'collection_site')
     search_fields = ('patient__first_name', 'patient__last_name', 'specimen_type', 'collection_site')
     list_filter = ('specimen_type', 'collection_date_time', 'collection_site')
@@ -106,9 +85,11 @@ class SpecimenAdmin(admin.ModelAdmin):
 
 @admin.register(TestOrder)
 class TestOrderAdmin(admin.ModelAdmin):
+    form = TestOrderForm
     list_display = ('specimen', 'test_name', 'ordering_doctor', 'order_date_time')  # Correct
     search_fields = ('specimen__patient__first_name', 'specimen__patient__last_name', 'test_name')
     list_filter = ('test_name', 'order_date_time')
+    raw_id_fields = ('specimen',)
     
 
 @admin.register(TestResult)
@@ -119,13 +100,24 @@ class TestResultAdmin(admin.ModelAdmin):
         'test_order__specimen__patient__last_name',
         'test_order__test_name',
         'diagnosis', )
-    # If using JSONField for parameters:
-    # formfield_overrides = {
-    #     JSONField: {'widget': forms.Textarea},  # Use a textarea for JSONField
-    # }
+    
+
+    def get_form(self, request, obj=None, **kwargs):
+        if obj and obj.test_order:
+            if obj.test_order.test_name == 'histology':
+                return HistologyResultForm
+            elif obj.test_order.test_name == 'cytology':
+                return CytologyResultForm
+            elif obj.test_order.test_name == 'pbf':
+                return PBFResultForm
+        return super().get_form(request, obj, **kwargs)
+
+  
+    
 
 @admin.register(Report)
 class ReportAdmin(admin.ModelAdmin):
+    form = ReportForm
     list_display = ('test_order', 'report_generated_date_time', 'report_verified_date_time')
     search_fields = ('test_order__specimen__patient__first_name', 'test_order__specimen__patient__last_name', 'test_order__test_name','test_order__specimen__collection_site')
     list_filter = ('report_verified_date_time',)

@@ -26,52 +26,95 @@ class PatientRegistrationForm(forms.ModelForm):
 
 
 class SpecimenEntryForm(forms.ModelForm):
+    patient = forms.ModelChoiceField(
+        queryset=Patient.objects.all(),
+        label="Select Patient",
+        empty_label="Select a Patient",
+    )
+
     class Meta:
         model = Specimen
         fields = ['patient', 'specimen_type', 'collection_date_time', 'received_date_time', 'collection_site', 'quantity', 'condition']
-        widgets = {
-            'collection_date_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-            'received_date_time': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
-        }
+    collection_date_time = forms.DateTimeField(
+        input_formats=['%m/%d/%Y %H:%M'],
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+    )
+    received_date_time = forms.DateTimeField(
+        input_formats=['%m/%d/%Y %H:%M'],
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+    )
+
+    def label_from_instance(self, obj):
+        return f"{obj.mrn} - {obj.first_name} {obj.last_name}"
 
 class TestOrderForm(forms.ModelForm):
     ordering_doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), label="Ordering Doctor")
+    specimen = forms.ModelChoiceField(
+        queryset=Specimen.objects.all(),
+        label="Select Specimen",
+        empty_label="Select a Specimen",
+    )
 
     class Meta:
         model = TestOrder
         fields = ['specimen', 'test_name', 'ordering_doctor']
 
+    def label_from_instance(self, obj):
+        return f"{obj.patient.mrn} - {obj.patient.first_name} {obj.patient.last_name} - {obj.specimen_type} - {obj.collection_date_time}"
+
 
 class HistologyResultForm(forms.ModelForm):
+    test_order = forms.ModelChoiceField(
+        queryset=TestOrder.objects.all(),
+        label="Select Test Order",
+        empty_label="Select a Test Order",
+    )
+
     class Meta:
         model = TestResult
-        fields = ['nature_of_specimen', 'clinical_history', 'macroscopy_description', 'microscopy_description', 'histology_parameter1', 'histology_parameter2', 'histology_parameter3']
+        fields = ['test_order', 'nature_of_specimen', 'clinical_history', 'macroscopy_description', 'microscopy_description']
         widgets = {
             'nature_of_specimen': forms.Textarea(attrs={'rows': 4}),
             'clinical_history': forms.Textarea(attrs={'rows': 4}),
             'macroscopy_description': forms.Textarea(attrs={'rows': 4}),
             'microscopy_description': forms.Textarea(attrs={'rows': 4}),
         }
+
+    def label_from_instance(self, obj):
+        return f"{obj.specimen.patient.mrn} - {obj.specimen.patient.first_name} {obj.specimen.patient.last_name} - {obj.test_name} - {obj.order_date_time}"
 
 
 class CytologyResultForm(forms.ModelForm):
+    test_order = forms.ModelChoiceField(
+        queryset=TestOrder.objects.all(),
+        label="Select Test Order",
+        empty_label="Select a Test Order",
+    )
+
     class Meta:
         model = TestResult
-        fields = ['nature_of_specimen', 'clinical_history', 'macroscopy_description', 'microscopy_description', 'cytology_parameter1', 'cytology_parameter2',  # Add your cytology-specific fields
-                  'cytology_parameter3']  # Example: 'cell_type', 'nuclear_morphology', etc.
+        fields = ['test_order', 'nature_of_specimen', 'clinical_history', 'macroscopy_description', 'microscopy_description']
         widgets = {
             'nature_of_specimen': forms.Textarea(attrs={'rows': 4}),
             'clinical_history': forms.Textarea(attrs={'rows': 4}),
             'macroscopy_description': forms.Textarea(attrs={'rows': 4}),
             'microscopy_description': forms.Textarea(attrs={'rows': 4}),
         }
+
+    def label_from_instance(self, obj):
+        return f"{obj.specimen.patient.mrn} - {obj.specimen.patient.first_name} {obj.specimen.patient.last_name} - {obj.test_name} - {obj.order_date_time}"
 
 
 class PBFResultForm(forms.ModelForm):
+    test_order = forms.ModelChoiceField(
+        queryset=TestOrder.objects.all(),
+        label="Select Test Order",
+        empty_label="Select a Test Order",
+    )
+
     class Meta:
         model = TestResult
-        fields = ['nature_of_specimen', 'clinical_history', 'macroscopy_description', 'microscopy_description', 'pbf_parameter1', 'pbf_parameter2',  # Add your PBF-specific fields
-                  'pbf_parameter3']  # Example: 'wbc_count', 'rbc_count', etc.
+        fields = ['test_order', 'nature_of_specimen', 'clinical_history', 'macroscopy_description', 'microscopy_description']
         widgets = {
             'nature_of_specimen': forms.Textarea(attrs={'rows': 4}),
             'clinical_history': forms.Textarea(attrs={'rows': 4}),
@@ -79,15 +122,26 @@ class PBFResultForm(forms.ModelForm):
             'microscopy_description': forms.Textarea(attrs={'rows': 4}),
         }
 
+    def label_from_instance(self, obj):
+        return f"{obj.specimen.patient.mrn} - {obj.specimen.patient.first_name} {obj.specimen.patient.last_name} - {obj.test_name} - {obj.order_date_time}"
+
 
 class ReportForm(forms.ModelForm):
+    test_order = forms.ModelChoiceField(
+        queryset=TestOrder.objects.all(),
+        label="Select Test Order",
+        empty_label="Select a Test Order",
+    )
+
     class Meta:
         model = Report
-        fields = ['comments_conclusion']  # Include only the fields you want to edit
+        fields = ['test_order', 'comments_conclusion']
         widgets = {
-            'comments_conclusion': forms.Textarea(attrs={'rows': 5}),  # Make it a textarea
+            'comments_conclusion': forms.Textarea(attrs={'rows': 5}),
         }
 
+    def label_from_instance(self, obj):
+        return f"{obj.specimen.patient.mrn} - {obj.specimen.patient.first_name} {obj.specimen.patient.last_name} - {obj.test_name} - {obj.order_date_time}"
 
 class PatientForm(forms.ModelForm):
     class Meta:

@@ -450,19 +450,9 @@ def generate_report(report, buffer):
                 create_row("Clinical History:", test_result.clinical_history),
                 create_row("Macroscopy Description:", test_result.macroscopy_description),
                 create_row("Microscopy Description:", test_result.microscopy_description),
+                create_row("Diagnosis:", test_result.diagnosis),
             ]
-            if test_order.test_name == 'histology':
-                test_result_data.extend([
-                    create_row("Histology Parameter 1:", test_result.histology_parameter1),
-                ])
-            elif test_order.test_name == 'cytology':
-                test_result_data.extend([
-                    create_row("Cytology Parameter 1:", test_result.cytology_parameter1),
-                ])
-            elif test_order.test_name == 'pbf':
-                test_result_data.extend([
-                    create_row("PBF Parameter 1:", test_result.pbf_parameter1),
-                ])
+
 
             table = Table(test_result_data, colWidths=[150, 350])
             table.setStyle(TableStyle([
@@ -497,13 +487,8 @@ def generate_report(report, buffer):
         elements.append(table)
         elements.append(Spacer(1, 12))
 
-        # Signature at the bottom corner
-        signature_table = Table([[Paragraph("Doctor's Signature:", styles['Normal']), report.doctor_signature or ""]], colWidths=[150, 200])
-        signature_table.setStyle(TableStyle([
-            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
-            ('VALIGN', (0, 0), (-1, -1), 'BOTTOM'),
-        ]))
-        elements.append(signature_table)
+
+        
 
         p.build(elements)
         buffer.seek(0)

@@ -4,8 +4,7 @@ from django.contrib.auth.models import User
 from doctors.models import Doctor
 
 class Patient(models.Model):  # Model name: Capitalized (PascalCase)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, unique=True)  # primary_key=True and unique=True
-    mrn = models.CharField(max_length=255, unique=True, verbose_name="Medical Record Number")
+    mrn = models.CharField(max_length=255, unique=True, primary_key=True, verbose_name="Medical Record Number")
     first_name = models.CharField(max_length=255, verbose_name="First Name")
     last_name = models.CharField(max_length=255, verbose_name="Last Name")
     dob = models.DateField(verbose_name="Date of Birth")
@@ -29,7 +28,7 @@ class CollectionSite(models.Model):
         return self.name  # Display the name in the dropdown
 
 class Specimen(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='specimens', verbose_name="Patient")
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='specimens', verbose_name="Patient", to_field='mrn')
     SPECIMEN_TYPES = [  # Choices for specimen type
         ('Blood', 'Blood'),
         ('Urine', 'Urine'),
@@ -67,7 +66,15 @@ class Specimen(models.Model):
         db_table = 'patients_specimen'
 
     def __str__(self):
-        return f"Specimen {self.specimen_type} (ID: {self.pk}) for {self.patient}"
+        if self.pk:  # Check if the Specimen has a primary key (is saved)
+            try:
+                patient = Patient.objects.get(mrn=self.patient)
+                return f"Specimen {self.specimen_type} (ID: {self.pk}) for {patient}"
+            except Patient.DoesNotExist:
+                return f"Specimen {self.specimen_type} (ID: {self.pk}) for Unknown Patient"
+        else:  # If the Specimen is being created
+            return f"Specimen {self.specimen_type} (Unsaved) for MRN: {self.patient}"
+
     
 
 
@@ -93,20 +100,6 @@ class TestResult(models.Model):  # TestResult model (Defined SECOND)
     microscopy_description = models.TextField(verbose_name="Microscopic Description")
     diagnosis = models.TextField(blank=True, null=True)  
 
-    # Histology Parameters
-    histology_parameter1 = models.CharField(max_length=255, blank=True, null=True)  # Example
-    histology_parameter2 = models.TextField(blank=True, null=True)  # Example
-    histology_parameter3 = models.IntegerField(blank=True, null=True)  # Example
-
-    # Cytology Parameters
-    cytology_parameter1 = models.CharField(max_length=255, blank=True, null=True)  # Example
-    cytology_parameter2 = models.TextField(blank=True, null=True)  # Example
-    cytology_parameter3 = models.BooleanField(blank=True, null=True)  # Example
-
-    # PBF Parameters
-    pbf_parameter1 = models.CharField(max_length=255, blank=True, null=True)  # Example
-    pbf_parameter2 = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)  # Example
-    pbf_parameter3 = models.DateField(blank=True, null=True)  # Example
 
 
 
