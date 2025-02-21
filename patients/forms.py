@@ -45,8 +45,8 @@ class SpecimenEntryForm(forms.ModelForm):
     )
 
     def label_from_instance(self, obj):
-        return f"{obj.mrn} - {obj.first_name} {obj.last_name}"
-
+        return f"{obj.patient.mrn} - {obj.patient.first_name} {obj.patient.last_name}"
+    
 class TestOrderForm(forms.ModelForm):
     ordering_doctor = forms.ModelChoiceField(queryset=Doctor.objects.all(), label="Ordering Doctor")
     specimen = forms.ModelChoiceField(
@@ -59,8 +59,9 @@ class TestOrderForm(forms.ModelForm):
         model = TestOrder
         fields = ['specimen', 'test_name', 'ordering_doctor']
 
+
     def label_from_instance(self, obj):
-        return f"{obj.patient.mrn} - {obj.patient.first_name} {obj.patient.last_name} - {obj.specimen_type} - {obj.collection_date_time}"
+        return f"{obj.patient.first_name} {obj.patient.last_name} (MRN: {obj.patient.mrn}) - {obj.specimen_type} (ID: {obj.pk}) - {obj.collection_date_time}"
 
 
 class HistologyResultForm(forms.ModelForm):
@@ -81,7 +82,7 @@ class HistologyResultForm(forms.ModelForm):
         }
 
     def label_from_instance(self, obj):
-        return f"{obj.specimen.patient.mrn} - {obj.specimen.patient.first_name} {obj.specimen.patient.last_name} - {obj.test_name} - {obj.order_date_time}"
+        return f"{obj.test_order.specimen.patient.mrn} - {obj.test_order.specimen.patient.first_name} {obj.test_order.specimen.patient.last_name} - {obj.test_order.test_name} - {obj.test_order.order_date_time}"
 
 
 class CytologyResultForm(forms.ModelForm):
@@ -102,7 +103,7 @@ class CytologyResultForm(forms.ModelForm):
         }
 
     def label_from_instance(self, obj):
-        return f"{obj.specimen.patient.mrn} - {obj.specimen.patient.first_name} {obj.specimen.patient.last_name} - {obj.test_name} - {obj.order_date_time}"
+        return f"{obj.test_order.specimen.patient.mrn} - {obj.test_order.specimen.patient.first_name} {obj.test_order.specimen.patient.last_name} - {obj.test_order.test_name} - {obj.test_order.order_date_time}"
 
 
 class PBFResultForm(forms.ModelForm):
@@ -141,7 +142,7 @@ class ReportForm(forms.ModelForm):
         }
 
     def label_from_instance(self, obj):
-        return f"{obj.specimen.patient.mrn} - {obj.specimen.patient.first_name} {obj.specimen.patient.last_name} - {obj.test_name} - {obj.order_date_time}"
+        return f"{obj.test_order.specimen.patient.mrn} - {obj.test_order.specimen.patient.first_name} {obj.test_order.specimen.patient.last_name} - {obj.test_order.test_name} - {obj.test_order.order_date_time}"
 
 class PatientForm(forms.ModelForm):
     class Meta:

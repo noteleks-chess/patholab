@@ -81,7 +81,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'Eldo_pathology_project.wsgi:application'
+WSGI_APPLICATION = 'Eldo_pathology_project.wsgi.application'
 
 
 # Database
