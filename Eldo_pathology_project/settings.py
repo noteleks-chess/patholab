@@ -83,7 +83,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Eldo_pathology_project.wsgi:application'
 
-
+print("DATABASE_URL:", os.environ.get('DATABASE_URL'))
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
