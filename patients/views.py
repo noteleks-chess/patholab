@@ -1,6 +1,7 @@
 from datetime import date, datetime
 from io import BytesIO
 import os
+import tempfile
 import logging
 from dateutil.relativedelta import relativedelta 
 from django.contrib.auth.views import LoginView
@@ -369,6 +370,32 @@ def generate_report(report, buffer):
         elements = []
 
 
+        # Hospital Banner Image
+        banner_image_path = os.path.join(settings.MEDIA_ROOT, 'bunner.png')  # Replace with your image path
+        if os.path.exists(banner_image_path):
+            try:
+                # Resize the banner image using Pillow
+                pil_image = PILImage.open(banner_image_path)
+                max_width = letter[0] - 100  # Adjust as needed (leave some margin)
+                pil_image.thumbnail((max_width, pil_image.height)) #Maintain aspect ratio.
+
+                # Save the resized image to a temporary file
+                temp_image = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+                pil_image.save(temp_image, "PNG")
+                temp_image_path = temp_image.name
+
+                elements.append(Image(temp_image_path, width=pil_image.width, height=pil_image.height))
+                elements.append(Spacer(1, 12))  # Add space after banner
+
+                # Close the temporary file after p.build
+                temp_image.close()
+
+            except Exception as e:
+                print(f"Error adding banner image: {e}")
+        else:
+            print(f"Banner image not found at {banner_image_path}")
+
+
 
         # Header (use a variable or setting for the title)
         report_title = getattr(settings, 'REPORT_TITLE', "Laboratory Final Report")  # Get from settings or default
@@ -448,9 +475,9 @@ def generate_report(report, buffer):
             test_result_data = [
                 create_row("Nature of Specimen:", test_result.nature_of_specimen),
                 create_row("Clinical History:", test_result.clinical_history),
-                create_row("Macroscopy Description:", test_result.macroscopy_description),
-                create_row("Microscopy Description:", test_result.microscopy_description),
-                create_row("Diagnosis:", test_result.diagnosis),
+                create_row("Macroscopic Description:", test_result.macroscopy_description),
+                create_row("Microscopic Description:", test_result.microscopy_description),
+                create_row("Diagnosis/Conclusion:", test_result.diagnosis),
             ]
 
 
@@ -470,11 +497,10 @@ def generate_report(report, buffer):
 
         # Report Details Table
         report_data = [
-            create_row("Comments/Conclusion:", report.comments_conclusion),
+            create_row("Comments:", report.comments_conclusion),
             create_row("Report Generated:", datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
         ]
-        if report.doctor_signature:
-            report_data.append(create_row("Doctor's Signature:", report.doctor_signature))
+
 
         table = Table(report_data, colWidths=[150, 350])
         table.setStyle(TableStyle([
@@ -487,8 +513,46 @@ def generate_report(report, buffer):
         elements.append(table)
         elements.append(Spacer(1, 12))
 
+                # Add Signature Image at the Bottom
+        if report.doctor_signature_image:
+            image_path = os.path.join(settings.MEDIA_ROOT, str(report.doctor_signature_image))
+            if os.path.exists(image_path):
+                try:
+                    # Resize the image using Pillow
+                    pil_image = PILImage.open(image_path)
+                    max_width = 100  # Adjust as needed
+                    max_height = 100 # Adjust as needed
+                    pil_image.thumbnail((max_width, max_height))
 
-        
+                    # Save the resized image to a temporary file
+                    temp_image = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+                    pil_image.save(temp_image, "PNG")
+                    temp_image_path = temp_image.name
+
+                    # Add space between table and "Confirmed and signed by"
+                    elements.append(Spacer(1, 30))  # Increase space before
+
+                    # Add "Confirmed and signed by" lines
+                    confirmed_text = Paragraph(f"Confirmed and signed by: {report.test_order.ordering_doctor.first_name} {report.test_order.ordering_doctor.last_name}", styles['Normal'])
+
+                    # Add the Image to the same line as the text.
+                    img = Image(temp_image_path, width=pil_image.width, height=pil_image.height)
+
+                    # Create a Table to hold the text and image side by side.
+                    signature_table = Table([[confirmed_text, img]], colWidths=[200, pil_image.width]) #Adjust the 300 value as needed.
+                    elements.append(signature_table)
+
+                    # Add space after the image
+                    elements.append(Spacer(1, 30))  # Increase space after
+
+                    # Close the temporary file after p.build
+                    temp_image.close()
+
+                except Exception as e:
+                    print(f"Error adding signature image: {e}")
+            else:
+                print(f"Signature image not found at {image_path}")
+
 
         p.build(elements)
         buffer.seek(0)

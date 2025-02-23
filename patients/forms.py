@@ -133,16 +133,21 @@ class ReportForm(forms.ModelForm):
         label="Select Test Order",
         empty_label="Select a Test Order",
     )
+    doctor_signature_image = forms.ImageField(required=False, label="Doctor's Signature Image") #Added signature field.
 
     class Meta:
         model = Report
-        fields = ['test_order', 'comments_conclusion']
+        fields = ['test_order', 'comments_conclusion', 'doctor_signature_image'] #Added signature field to fields
         widgets = {
             'comments_conclusion': forms.Textarea(attrs={'rows': 5}),
         }
 
     def label_from_instance(self, obj):
-        return f"{obj.test_order.specimen.patient.mrn} - {obj.test_order.specimen.patient.first_name} {obj.test_order.specimen.patient.last_name} - {obj.test_order.test_name} - {obj.test_order.order_date_time}"
+        return f"{obj.specimen.patient.mrn} - {obj.specimen.patient.first_name} {obj.specimen.patient.last_name} - {obj.test_name} - {obj.order_date_time}"
+
+    def __init__(self, *args, **kwargs):
+      super().__init__(*args, **kwargs)
+      self.fields['test_order'].label_from_instance = self.label_from_instance
 
 class PatientForm(forms.ModelForm):
     class Meta:

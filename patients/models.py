@@ -97,7 +97,7 @@ class TestResult(models.Model):  # TestResult model (Defined SECOND)
     clinical_history = models.TextField(verbose_name="Clinical History")
     macroscopy_description = models.TextField(verbose_name="Macroscopic Description")
     microscopy_description = models.TextField(verbose_name="Microscopic Description")
-    diagnosis = models.TextField(blank=True, null=True)  
+    diagnosis = models.TextField(blank=True, null=True,verbose_name="Diagnosis and Conclusion")  
 
 
     def __str__(self):
@@ -106,8 +106,8 @@ class TestResult(models.Model):  # TestResult model (Defined SECOND)
 
 class Report(models.Model):  # Report model (Defined LAST)
     test_order = models.OneToOneField(TestOrder, on_delete=models.CASCADE, related_name='report', verbose_name="Test Order")
-    comments_conclusion = models.TextField(verbose_name="Comments and Conclusion")
-    doctor_signature = models.CharField(max_length=255, blank=True, null=True, verbose_name="Doctor's Signature")
+    comments_conclusion = models.TextField(verbose_name="Comments")
+    doctor_signature_image = models.ImageField(upload_to='signatures/', blank=True, null=True, verbose_name="Doctor's Signature Image")
     report_generated_date_time = models.DateTimeField(auto_now_add=True, verbose_name="Report Generated Date and Time")
     report_verified_date_time = models.DateTimeField(blank=True, null=True, verbose_name="Report Verified Date and Time")
 
