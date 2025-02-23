@@ -30,7 +30,7 @@ MEDIA_URL = '/media/'  # The URL that handles the media served from MEDIA_ROOT
 SECRET_KEY = 'django-insecure-3kide-cvkll9otgv5h_b7ft0mivi05a#vud0en%glj3=%%wjg_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -88,7 +88,7 @@ print("DATABASE_URL:", os.environ.get('DATABASE_URL'))
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    'default': dj_database_url.config(conn_max_age=600, ssl_require=False)
 }
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators

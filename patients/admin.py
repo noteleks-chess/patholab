@@ -79,9 +79,11 @@ from .models import Specimen  # Import your Specimen model
 class SpecimenAdmin(admin.ModelAdmin):
     form = SpecimenEntryForm  # Use your custom form
     list_display = ('patient', 'specimen_type', 'collection_date_time', 'received_date_time', 'collection_site')
-    search_fields = ('patient__first_name', 'patient__last_name', 'specimen_type', 'collection_site')
+    search_fields = ('specimen_type', 'patient__first_name', 'patient__last_name', 'patient__mrn', 'collection_site__name') # added patient lookups and collection site name.
     list_filter = ('specimen_type', 'collection_date_time', 'collection_site')
     raw_id_fields = ('patient',)
+
+
 
 @admin.register(TestOrder)
 class TestOrderAdmin(admin.ModelAdmin):

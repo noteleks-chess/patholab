@@ -26,9 +26,12 @@ class CollectionSite(models.Model):
 
     def __str__(self):
         return self.name  # Display the name in the dropdown
+    
+    class Meta:
+        verbose_name_plural = "Hospitals"
 
 class Specimen(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='specimens', verbose_name="Patient", to_field='mrn')
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE) 
     SPECIMEN_TYPES = [  # Choices for specimen type
         ('Blood', 'Blood'),
         ('Urine', 'Urine'),
@@ -66,14 +69,7 @@ class Specimen(models.Model):
         db_table = 'patients_specimen'
 
     def __str__(self):
-        if self.pk:  # Check if the Specimen has a primary key (is saved)
-            try:
-                patient = Patient.objects.get(mrn=self.patient)
-                return f"Specimen {self.specimen_type} (ID: {self.pk}) for {patient}"
-            except Patient.DoesNotExist:
-                return f"Specimen {self.specimen_type} (ID: {self.pk}) for Unknown Patient"
-        else:  # If the Specimen is being created
-            return f"Specimen {self.specimen_type} (Unsaved) for MRN: {self.patient}"
+        return f"{self.specimen_type} (ID: {self.id}) - Patient: {self.patient.last_name}, {self.patient.first_name} (MRN: {self.patient.mrn})"
 
     
 
@@ -91,6 +87,9 @@ class TestOrder(models.Model):
     ordering_doctor = models.ForeignKey(Doctor, on_delete=models.PROTECT)  # Foreign key to Doctor)
     order_date_time = models.DateTimeField(auto_now_add=True, verbose_name="Order Date and Time")
 
+    def __str__(self):
+        return f"{self.test_name} - Patient: {self.specimen.patient.last_name}, {self.specimen.patient.first_name} (MRN: {self.specimen.patient.mrn}) - Doctor: {self.ordering_doctor.last_name}, {self.ordering_doctor.first_name} (ID: {self.ordering_doctor.id})"
+
 class TestResult(models.Model):  # TestResult model (Defined SECOND)
     test_order = models.OneToOneField(TestOrder, on_delete=models.CASCADE, related_name='test_result', verbose_name="Test Order")
     result_order_date_time = models.DateTimeField(blank=True, null=True, verbose_name="Order Date and Time") # New field
@@ -101,7 +100,8 @@ class TestResult(models.Model):  # TestResult model (Defined SECOND)
     diagnosis = models.TextField(blank=True, null=True)  
 
 
-
+    def __str__(self):
+        return f"Test Result (ID: {self.id}) - Patient: {self.test_order.specimen.patient.last_name}, {self.test_order.specimen.patient.first_name} (MRN: {self.test_order.specimen.patient.mrn}) - Test: {self.test_order.test_name}"
 
 
 class Report(models.Model):  # Report model (Defined LAST)
@@ -112,4 +112,4 @@ class Report(models.Model):  # Report model (Defined LAST)
     report_verified_date_time = models.DateTimeField(blank=True, null=True, verbose_name="Report Verified Date and Time")
 
     def __str__(self):
-        return self.test_order.test_name
+        return f"Report (ID: {self.id}) - Patient: {self.test_order.specimen.patient.last_name}, {self.test_order.specimen.patient.first_name} (MRN: {self.test_order.specimen.patient.mrn}) - Test: {self.test_order.test_name}"
