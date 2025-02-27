@@ -42,6 +42,8 @@ def login_view(request):
 
                 if user.is_superuser or 'admin' in user_groups:
                     return redirect(reverse('admin:index'))
+                elif user.is_staff: # Staff users go to the restricted admin
+                    return redirect(reverse('admin:index'))
                 elif 'doctor' in user_groups:
                     return redirect(reverse('patients:frontend_dashboard') + '?user_type=doctor')
                 elif 'patient' in user_groups:
@@ -63,10 +65,10 @@ def login_view(request):
 @login_required
 def frontend_dashboard(request):
     user_type = request.GET.get('user_type')
-    context = {'user': request.user, 'is_superuser': request.user.is_superuser}
+    context = {'user': request.user, 'is_staff': request.user.is_staff}
     user_groups = [group.name for group in request.user.groups.all()]
 
-    if request.user.is_superuser or 'admin' in user_groups:
+    if request.user.is_staff:
         context['is_admin'] = True
         template_name = 'patients/frontend_dashboard_admin.html'
         context['can_add_patient'] = request.user.has_perm('patients.add_patient')
@@ -80,9 +82,9 @@ def frontend_dashboard(request):
         context['can_view_patient'] = request.user.has_perm('patients.view_patient')
         context['can_view_specimen'] = request.user.has_perm('patients.view_specimen')
         if context['can_view_patient']:
-            context['patients'] = Patient.objects.all()
+            context['patients'] = Patient.objects.filter(created_by=request.user) # Filtered Patients.
         if context['can_view_specimen']:
-            context['specimens'] = Specimen.objects.all()
+            context['specimens'] = Specimen.objects.filter(created_by=request.user) #Filtered Specimens.
 
     elif 'patient' in user_groups:
         context['is_patient'] = True
@@ -104,7 +106,7 @@ def frontend_dashboard(request):
         context['can_add_patient'] = request.user.has_perm('patients.add_patient')
         context['can_view_patient'] = request.user.has_perm('patients.view_patient')
         if context['can_view_patient']:
-            context['patients'] = Patient.objects.all()
+            context['patients'] = Patient.objects.filter(created_by=request.user) # Filtered Patients.
 
     else:  # Default template (if no specific user_type or group)
         template_name = 'patients/frontend_dashboard.html'
@@ -201,15 +203,17 @@ def patient_delete(request, patient_id):
 def enter_specimen(request, patient_id):
     patient = get_object_or_404(Patient, pk=patient_id)
     if request.method == 'POST':
-        form = SpecimenEntryForm(request.POST or None) # Important: Handle both GET and POST
+        form = SpecimenEntryForm(request.POST or None)
         if form.is_valid():
             specimen = form.save(commit=False)
             specimen.patient = patient
+            specimen.created_by = request.user #Assign current user.
             specimen.save()
             return redirect(reverse('patients:specimen_detail', kwargs={'specimen_id': specimen.id}))
     else:
         form = SpecimenEntryForm(initial={'patient': patient})
     return render(request, 'patients/enter_specimen.html', {'form': form, 'patient': patient})
+
 
 @login_required
 def specimen_detail(request, specimen_id):
@@ -225,17 +229,18 @@ def patient_list(request):
 @login_required
 @permission_required('patients.add_testorder')
 def create_test_order(request, specimen_id):
-    specimen = get_object_or_404(Specimen, pk=specimen_id)  # Make sure the Specimen exists!
+    specimen = get_object_or_404(Specimen, pk=specimen_id)
     if request.method == 'POST':
         form = TestOrderForm(request.POST)
         if form.is_valid():
             test_order = form.save(commit=False)
             test_order.specimen = specimen
+            test_order.created_by = request.user #Assign current user.
             test_order.save()
             return redirect(reverse('patients:test_order_detail', kwargs={'test_order_id': test_order.id}))
     else:
-        form = TestOrderForm(initial={'specimen': specimen})  # Prefill specimen (important)
-    return render(request, 'patients/create_test_order.html', {'form': form, 'specimen': specimen})  # 'form' in context!
+        form = TestOrderForm(initial={'specimen': specimen})
+    return render(request, 'patients/create_test_order.html', {'form': form, 'specimen': specimen})
 
 
 @login_required
@@ -247,7 +252,6 @@ def test_order_detail(request, test_order_id):  # Corrected: Removed duplicate
 @permission_required('patients.add_testresult')
 def enter_results(request, test_order_id, test_type):
     test_order = get_object_or_404(TestOrder, pk=test_order_id)
-
     if test_type == 'histology':
         form_class = HistologyResultForm
         template = 'patients/enter_histology_results.html'
@@ -258,8 +262,7 @@ def enter_results(request, test_order_id, test_type):
         form_class = PBFResultForm
         template = 'patients/enter_pbf_results.html'
     else:
-        # Handle invalid test type (e.g., redirect with error message)
-        return redirect(reverse('patients:test_order_detail', kwargs={'test_order_id': test_order_id}))  # Or raise an exception
+        return redirect(reverse('patients:test_order_detail', kwargs={'test_order_id': test_order_id}))
 
     test_result, created = TestResult.objects.get_or_create(test_order=test_order)
     form = form_class(request.POST or None, instance=test_result)
@@ -267,8 +270,9 @@ def enter_results(request, test_order_id, test_type):
     if form.is_valid():
         test_result = form.save(commit=False)
         test_result.test_order = test_order
+        test_result.created_by = request.user #Assign current user.
         test_result.save()
-        return redirect(reverse('patients:report_form', kwargs={'test_order_id': test_order.id}))  # Or wherever you want to redirect
+        return redirect(reverse('patients:report_form', kwargs={'test_order_id': test_order.id}))
 
     return render(request, template, {'form': form, 'test_order': test_order})
 
@@ -281,11 +285,13 @@ def report_form(request, test_order_id):
     if request.method == 'POST':
         form = ReportForm(request.POST, instance=report)
         if form.is_valid():
-            report = form.save()
-            return redirect(reverse('patients:report_draft', kwargs={'report_id': report.id}))  # Redirect to report_draft
+            report = form.save(commit=False)
+            report.created_by = request.user #Assign current user.
+            report.save()
+            return redirect(reverse('patients:report_draft', kwargs={'report_id': report.id}))
     else:
         form = ReportForm(instance=report)
-    return render(request, 'patients/report_form.html', {'form': form, 'test_order': test_order, 'report': report})  # Add 'report': report to the context!
+    return render(request, 'patients/report_form.html', {'form': form, 'test_order': test_order, 'report': report})
 
 
 @login_required
